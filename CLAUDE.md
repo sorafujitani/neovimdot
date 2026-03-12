@@ -4,68 +4,68 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Neovim設定リポジトリ (macOS環境向け)。Lazy.nvimでプラグイン管理、Neovim 0.11+の組み込みLSP機能を使用。
+Personal Neovim configuration for macOS. Plugin management via Lazy.nvim, using Neovim 0.11+ built-in LSP features.
 
 ## Commands
 
 ```bash
-# 設定をリロード (Neovim内)
+# Reload config (inside Neovim)
 :source %
 
-# プラグイン管理
-:Lazy sync          # プラグイン更新
-:Lazy health        # 状態確認
+# Plugin management
+:Lazy sync          # Update plugins
+:Lazy health        # Check status
 
-# ヘルスチェック
+# Health check
 :checkhealth
 
-# LSP情報
-:LspInfo            # アタッチ中のLSPクライアント詳細表示
-:LspRestart [name]  # LSP再起動 (name省略で全て)
-:LspStop [name]     # LSP停止
+# LSP info
+:LspInfo            # Show attached LSP client details
+:LspRestart [name]  # Restart LSP (all if name omitted)
+:LspStop [name]     # Stop LSP
 
-# 起動時間計測
+# Measure startup time
 nvim --startuptime /tmp/startup.log && tail -30 /tmp/startup.log
 ```
 
 ## Architecture
 
 ```
-init.lua                    # エントリーポイント
-├── lua/config/lazy.lua     # Lazy.nvimセットアップ＋プラグイン宣言
+init.lua                    # Entry point
+├── lua/config/lazy.lua     # Lazy.nvim setup + plugin declarations
 ├── lua/core/
-│   ├── options.lua         # vim.opt設定 (leader=" ")
-│   ├── autocmds.lua        # 自動コマンド
-│   └── commands.lua        # カスタムコマンド (Sed, Cfp, Crp, Fmt等)
+│   ├── options.lua         # vim.opt settings (leader=" ")
+│   ├── autocmds.lua        # Autocommands
+│   └── commands.lua        # Custom commands (Sed, Cfp, Crp, Fmt, etc.)
 ├── lua/keymaps/
-│   ├── init.lua            # 基本キーマップ＋サブモジュール読み込み
-│   ├── lsp.lua             # LSP関連キーマップ ([d, ]d, gi, gt, <leader>a等)
-│   ├── picker.lua          # snacks.picker (gd, gr, <C-p>, <C-g>等)
-│   ├── git.lua             # Git操作
+│   ├── init.lua            # Base keymaps + submodule loader
+│   ├── lsp.lua             # LSP keymaps ([d, ]d, gi, gt, <leader>a, etc.)
+│   ├── picker.lua          # snacks.picker (gd, gr, <C-p>, <C-g>, etc.)
+│   ├── git.lua             # Git operations
 │   ├── file-explorer.lua   # Oil.nvim
 │   ├── terminal.lua        # ToggleTerm
-│   ├── debug.lua           # DAP (遅延読み込み)
-│   └── test.lua            # Neotest (遅延読み込み)
+│   ├── debug.lua           # DAP (lazy-loaded)
+│   └── test.lua            # Neotest (lazy-loaded)
 ├── lua/lsp/
-│   ├── init.lua            # vim.lsp.enable()でサーバー有効化
-│   ├── diagnostics.lua     # 診断設定
-│   └── hover.lua           # ホバー設定
+│   ├── init.lua            # Enable servers via vim.lsp.enable()
+│   ├── diagnostics.lua     # Diagnostic settings
+│   └── hover.lua           # Hover settings
 ├── lua/plugins/
-│   ├── init.lua            # プラグイン設定読み込み
-│   └── *.lua               # 各プラグインの設定
+│   ├── init.lua            # Plugin config loader
+│   └── *.lua               # Per-plugin configuration
 ├── lua/ui/
-│   └── highlights.lua      # ハイライト設定
+│   └── highlights.lua      # Highlight settings
 └── lsp/
-    └── *.lua               # LSPサーバー設定 (vim.lsp.Config形式)
+    └── *.lua               # LSP server configs (vim.lsp.Config format)
 ```
 
 ## LSP Configuration
 
-Neovim 0.11+の`vim.lsp.config()`/`vim.lsp.enable()`を使用。
+Uses Neovim 0.11+ `vim.lsp.config()` / `vim.lsp.enable()`.
 
-サーバー設定は`lsp/`ディレクトリに配置:
+Server configs live in the `lsp/` directory:
 ```lua
--- lsp/ts_ls.lua の例
+-- Example: lsp/ts_ls.lua
 ---@type vim.lsp.Config
 return {
   cmd = { 'typescript-language-server', '--stdio' },
@@ -74,58 +74,58 @@ return {
 }
 ```
 
-有効なサーバー: lua_ls, ts_ls, denols, biome, rust_analyzer, ruby_lsp, gopls
+Enabled servers: lua_ls, ts_ls, denols, biome, rust_analyzer, ruby_lsp, gopls
 
-**Note:** denolsは`deno.json`存在時のみ起動 (root_markers設定)
+**Note:** denols only starts when `deno.json` is present (via root_markers)
 
 ## Lazy Loading Strategy
 
-- **即時読み込み**: colorscheme, treesitter, snacks, blink.cmp, lualine, mini.icons
+- **Immediate**: colorscheme, treesitter, snacks, blink.cmp, lualine, mini.icons
 - **VeryLazy**: denops, nerdfont
 - **BufReadPost**: auto-save
 - **BufReadPre**: gitsigns, hlchunk
 - **InsertEnter**: autopairs, snippy, copilot
 - **TextYankPost**: vim-yoink
-- **キー入力**: Comment.nvim (`gc`), Oil (`<S-e>`)
-- **コマンド**: DAP, Neotest, LazyGit, GrugFar等
-- DAP/Neotestは`:DapLoad`/`:NeotestLoad`コマンドで手動読み込み
+- **Keys**: Comment.nvim (`gc`), Oil (`<S-e>`)
+- **Commands**: DAP, Neotest, LazyGit, GrugFar, etc.
+- DAP/Neotest are manually loaded via `:DapLoad` / `:NeotestLoad`
 
 ## Key Bindings
 
 ### LSP
-| キー | 説明 |
-|------|------|
-| `gd` | 定義へジャンプ (picker) |
-| `gr` | 参照一覧 (picker) |
-| `gi` | 実装へジャンプ |
-| `gt` | 型定義へジャンプ |
-| `K` | ホバードキュメント |
-| `<leader>a` | コードアクション |
-| `[d` / `]d` | 前/次の診断 |
-| `<leader>dd` | 診断フロート表示 |
-| `<leader>dl` | 診断一覧 |
+| Key | Description |
+|-----|-------------|
+| `gd` | Go to definition (picker) |
+| `gr` | List references (picker) |
+| `gi` | Go to implementation |
+| `gt` | Go to type definition |
+| `K` | Hover documentation |
+| `<leader>a` | Code action |
+| `[d` / `]d` | Previous / next diagnostic |
+| `<leader>dd` | Show diagnostic float |
+| `<leader>dl` | Diagnostic list |
 
 ### Picker (snacks.picker)
-| キー | 説明 |
-|------|------|
-| `<C-p>` | ファイル検索 |
+| Key | Description |
+|-----|-------------|
+| `<C-p>` | Find files |
 | `<C-g>` | Grep |
-| `<C-f>` | バッファ内行検索 |
-| `<C-b>` | バッファ一覧 |
-| `<C-l>` | 最近開いたファイル |
-| `<leader>sw` | カーソル下の単語でGrep |
-| `<leader>ds` | ドキュメントシンボル |
-| `<leader>ws` | ワークスペースシンボル |
+| `<C-f>` | Search lines in buffer |
+| `<C-b>` | List buffers |
+| `<C-l>` | Recent files |
+| `<leader>sw` | Grep word under cursor |
+| `<leader>ds` | Document symbols |
+| `<leader>ws` | Workspace symbols |
 
 ## Custom Commands
 
-| コマンド | 説明 |
-|---------|------|
-| `:Sed old new` | 全体置換 |
-| `:Cfp` | フルパスをコピー |
-| `:Crp` | 相対パスをコピー (行番号付き可) |
-| `:Cfn` | ファイル名をコピー |
-| `:Fmt` | conform.nvimでフォーマット |
-| `:LspRestart [name]` | LSP再起動 |
-| `:LspStop [name]` | LSP停止 |
-| `:NotePush` | git add/commit/push一括実行 |
+| Command | Description |
+|---------|-------------|
+| `:Sed old new` | Global search and replace |
+| `:Cfp` | Copy full path |
+| `:Crp` | Copy relative path (with optional line number) |
+| `:Cfn` | Copy filename |
+| `:Fmt` | Format via conform.nvim |
+| `:LspRestart [name]` | Restart LSP |
+| `:LspStop [name]` | Stop LSP |
+| `:NotePush` | Run git add/commit/push in one shot |

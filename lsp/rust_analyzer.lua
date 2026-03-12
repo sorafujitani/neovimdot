@@ -12,6 +12,11 @@ return {
       cargo = {
         allFeatures = true,
       },
+      completion = {
+        callable = {
+          snippets = 'none',
+        },
+      },
     },
   },
 }
