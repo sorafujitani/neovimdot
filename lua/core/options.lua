@@ -30,6 +30,9 @@ vim.opt.wildmenu = true
 -- statuslineをグローバルに固定
 vim.opt.laststatus = 3
 
+-- タイムアウト (キーマッピングの応答速度)
+vim.opt.timeoutlen = 300
+
 -- 検索
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
