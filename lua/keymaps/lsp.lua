@@ -45,11 +45,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
 		-- diagnostic navigation
 		vim.keymap.set("n", "[d", function()
-			vim.diagnostic.goto_prev({ float = { border = "rounded" } })
+			vim.diagnostic.jump({ count = -1, float = { border = "rounded" } })
 		end, vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
 
 		vim.keymap.set("n", "]d", function()
-			vim.diagnostic.goto_next({ float = { border = "rounded" } })
+			vim.diagnostic.jump({ count = 1, float = { border = "rounded" } })
 		end, vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
 
 		vim.keymap.set("n", "<leader>dl", vim.diagnostic.setloclist, vim.tbl_extend("force", opts, { desc = "Diagnostic list" }))

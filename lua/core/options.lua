@@ -64,6 +64,8 @@ vim.opt.ambiwidth = "single"
 vim.opt.winblend = 0
 vim.opt.pumblend = 0
 
+vim.opt.pumborder = "rounded"
+
 -- GUIカラーを使用
 vim.opt.termguicolors = true
 vim.opt.background = "dark"
