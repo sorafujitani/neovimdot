@@ -30,11 +30,15 @@ end, { range = true, desc = "Copy the file name of the current file to the clipb
 
 -- LSP制御コマンド
 vim.api.nvim_create_user_command("Nonts", function()
-	vim.lsp.stop_client(vim.lsp.get_clients({ name = "ts_ls" }))
+	for _, client in ipairs(vim.lsp.get_clients({ name = "ts_ls" })) do
+		client:stop()
+	end
 end, { desc = "Stop TypeScript LSP server" })
 
 vim.api.nvim_create_user_command("Nondeno", function()
-	vim.lsp.stop_client(vim.lsp.get_clients({ name = "denols" }))
+	for _, client in ipairs(vim.lsp.get_clients({ name = "denols" })) do
+		client:stop()
+	end
 end, { desc = "Stop Deno LSP server" })
 
 -- Copilot制御コマンド

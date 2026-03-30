@@ -71,7 +71,7 @@ vim.api.nvim_create_user_command("LspRestart", function(opts)
 	end
 
 	for _, client in ipairs(clients) do
-		vim.lsp.stop_client(client.id)
+		client:stop()
 	end
 
 	-- 停止後にバッファを再読み込みしてLSPを再起動
@@ -86,7 +86,7 @@ vim.api.nvim_create_user_command("LspStop", function(opts)
 	local name = opts.args ~= "" and opts.args or nil
 	local clients = vim.lsp.get_clients({ name = name })
 	for _, client in ipairs(clients) do
-		vim.lsp.stop_client(client.id)
+		client:stop()
 	end
 	vim.notify(string.format("Stopped %d client(s)", #clients))
 end, { nargs = "?", desc = "Stop LSP client(s)" })
