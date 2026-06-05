@@ -20,6 +20,9 @@ vim.keymap.set("n", "<leader>/", "<cmd>nohlsearch<CR>", { desc = "Clear search h
 -- リロード
 vim.keymap.set("n", "<leader>s", "<cmd>source %<CR>", { desc = "Source current file" })
 
+-- 相対パス確認
+vim.keymap.set("n", "<leader>fp", function() print(vim.fn.expand("%")) end, { desc = "Print relative path" })
+
 -- キーマップヘルプ
 vim.keymap.set("n", "<leader>?", function()
 	require("snacks").picker.keymaps()

@@ -4,6 +4,6 @@ return {
   filetypes = { 'ruby', 'eruby' },
   root_markers = { 'Gemfile', '.ruby-version', '.git' },
   init_options = {
-    formatter = 'auto',
+    formatter = 'rfmt',
   },
 }

@@ -94,10 +94,12 @@ COPY . /root/.config/nvim/
 # Pre-install plugins
 RUN nvim --headless "+Lazy! sync" +qa
 
-# Pre-install Treesitter parsers (nvim-treesitter main branch API)
-RUN nvim --headless \
-    -c "lua require('nvim-treesitter').install({'lua','javascript','typescript','tsx','rust','go','ruby','html','css','json','yaml','toml','markdown','bash','vim','vimdoc','python'}):wait()" \
-    -c "qa"
+# Pre-install Treesitter parsers (lazy: BufReadPost 後に nvim-treesitter が載るためダミーバッファを開いてから install)
+RUN touch /tmp/.nvim-ts-init.lua \
+    && nvim --headless \
+        -c "e /tmp/.nvim-ts-init.lua" \
+        -c "lua require('nvim-treesitter').install({'lua','javascript','typescript','tsx','rust','go','ruby','html','css','json','yaml','toml','markdown','bash','vim','vimdoc','python'}):wait()" \
+        -c "qa"
 
 WORKDIR /workspace
 ENTRYPOINT ["nvim"]

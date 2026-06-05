@@ -9,6 +9,12 @@ vim.opt.fileencoding = "utf-8"
 -- スワップファイルを使用しない
 vim.opt.swapfile = false
 
+-- 外部からのファイル変更を自動的に読み込む (autocmds.lua の checktime トリガと併用)
+vim.opt.autoread = true
+
+-- CursorHold が発火するまでの時間 (ms): 短めにして外部変更検知を素早く
+vim.opt.updatetime = 250
+
 -- ヘルプ言語を日本語に設定
 vim.opt.helplang = "ja"
 
@@ -28,7 +34,7 @@ vim.opt.clipboard:append({ "unnamedplus" })
 vim.opt.wildmenu = true
 
 -- statuslineをグローバルに固定
-vim.opt.laststatus = 3
+vim.opt.laststatus = 0
 
 -- タイムアウト (キーマッピングの応答速度)
 vim.opt.timeoutlen = 300

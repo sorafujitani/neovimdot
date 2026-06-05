@@ -1,8 +1,4 @@
--- プラグイン設定の読み込み
-require("plugins.statusline")
-require("plugins.git")
-require("plugins.oil")
-require("plugins.formatter")
+-- プラグイン設定の読み込み（起動クリティカルパス最小化: その他は lazy の config で遅延）
 require("plugins.snacks")
 require("plugins.blink-cmp")
 

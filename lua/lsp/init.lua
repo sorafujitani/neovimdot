@@ -37,8 +37,19 @@ vim.lsp.enable({
 	"biome",
 	"rust_analyzer",
 	"ruby_lsp",
+	"rfmt",
 	"gopls",
 	"ty",
+	"nil_ls",
+})
+
+-- Ruby: 保存時にrfmt (standalone LSP) でフォーマット
+-- name指定でruby_lspとの競合を回避
+vim.api.nvim_create_autocmd("BufWritePre", {
+	pattern = "*.rb",
+	callback = function()
+		vim.lsp.buf.format({ name = "rfmt", timeout_ms = 5000 })
+	end,
 })
 
 -- LSP情報表示コマンド (詳細版)

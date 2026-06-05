@@ -17,7 +17,7 @@ vim.keymap.set("n", "<C-l>gd", function()
 end, { desc = "Definition in right split" })
 
 -- rename
-vim.keymap.set("n", "<F2>", vim.lsp.buf.rename, { desc = "LSP rename" })
+vim.keymap.set("n", "<C-2>", vim.lsp.buf.rename, { desc = "LSP rename" })
 
 -- diagnostic設定
 vim.keymap.set("n", "<leader>n", function()

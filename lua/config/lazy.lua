@@ -19,24 +19,55 @@ require("lazy").setup({
   -- colorSchema (即時読み込み)
   { "fcpg/vim-orbital", lazy = false },
 
-  -- treesitter (即時読み込み / main branch API)
+  -- treesitter（ファイルを開いてから読み込み — 起動時コストを避ける）
   {
     "nvim-treesitter/nvim-treesitter",
-    lazy = false,
+    event = { "BufReadPost", "BufNewFile" },
     build = ":TSUpdate",
     config = function()
       require("nvim-treesitter").setup({
         ensure_installed = {
           "lua", "javascript", "typescript", "tsx", "rust", "go", "ruby",
-          "html", "css", "json", "yaml", "toml", "markdown", "bash", "vim", "vimdoc", "python",
+          "html", "css", "json", "yaml", "toml", "markdown", "markdown_inline", "bash", "vim", "vimdoc", "python", "nix",
         },
         auto_install = true,
       })
     end,
   },
 
-  -- markview (マークダウン時のみ)
-  { "OXY2DEV/markview.nvim", ft = { "markdown", "md" } },
+  -- render-markdown (マークダウン時のみ)
+  -- カーソル行でも描画を維持するため anti_conceal を無効化
+  -- コードブロックの白帯を抑制するため width/border 調整
+  -- (ハイライト色は ui/highlights.lua で orbital に合わせて設定)
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    ft = { "markdown", "md" },
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "echasnovski/mini.icons",
+    },
+    ---@module 'render-markdown'
+    ---@type render.md.UserConfig
+    opts = {
+      anti_conceal = { enabled = false },
+      code = {
+        -- "normal" でコードブロック bg のみ描画 (ラベル装飾なし)。
+        -- 幅を block に絞り、サイン列のアイコンと上下罫線は省く。
+        style = "normal",
+        sign = false,
+        width = "block",
+        border = "none",
+        left_pad = 1,
+        right_pad = 1,
+      },
+      heading = {
+        width = "block",
+        left_pad = 0,
+        right_pad = 1,
+        border = false,
+      },
+    },
+  },
 
   -- snippets
   "rafamadriz/friendly-snippets",
@@ -83,8 +114,15 @@ require("lazy").setup({
   },
   { "leoluz/nvim-dap-go", ft = "go" },
 
-  -- lualine (即時読み込み)
-  { "nvim-lualine/lualine.nvim", lazy = false },
+  -- lualine（UI 準備後に読み込み）
+  {
+    "nvim-lualine/lualine.nvim",
+    enabled = false,
+    event = "VeryLazy",
+    config = function()
+      require("plugins.statusline")
+    end,
+  },
 
   -- autosave (バッファ読み込み時)
   {
@@ -124,8 +162,28 @@ require("lazy").setup({
   { "duane9/nvim-rg", cmd = "Rg" },
 
   -- git
-  { "lewis6991/gitsigns.nvim", event = "BufReadPre" },
-  { "dinhhuy258/git.nvim", cmd = { "Git", "GitBlame" } },
+  {
+    "lewis6991/gitsigns.nvim",
+    event = "BufReadPre",
+    config = function()
+      require("gitsigns").setup({})
+    end,
+  },
+  {
+    "dinhhuy258/git.nvim",
+    cmd = { "Git", "GitBlame" },
+    config = function()
+      local ok, git = pcall(require, "git")
+      if ok then
+        git.setup({
+          keymaps = {
+            blame = "<Leader>gb",
+            browse = "<Leader>go",
+          },
+        })
+      end
+    end,
+  },
   { "kdheepak/lazygit.nvim", cmd = "LazyGit" },
   {
     "NeogitOrg/neogit",
@@ -191,6 +249,9 @@ require("lazy").setup({
     "stevearc/oil.nvim",
     keys = { { "<S-e>", "<cmd>Oil<CR>", desc = "Open Oil file explorer" } },
     cmd = "Oil",
+    config = function()
+      require("plugins.oil")
+    end,
   },
   {
     "A7Lavinraj/fyler.nvim",
@@ -200,8 +261,14 @@ require("lazy").setup({
     end,
   },
 
-  -- formatter (保存時に読み込み)
-  { "stevearc/conform.nvim", event = "BufWritePre" },
+  -- formatter (保存時に読み込み + 設定はこのタイミングで適用)
+  {
+    "stevearc/conform.nvim",
+    event = "BufWritePre",
+    config = function()
+      require("plugins.formatter")
+    end,
+  },
 
   -- snippets (mini.snippets)
   {

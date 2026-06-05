@@ -3,7 +3,7 @@ local blink = require("blink.cmp")
 
 blink.setup({
 	sources = {
-		default = { "lazydev", "lsp", "path", "snippets", "buffer" },
+		default = { "lazydev", "lsp", "path", "snippets", "buffer", "go_walrus" },
 		providers = {
 			lsp = {
 				name = "LSP",
@@ -24,6 +24,11 @@ blink.setup({
 				module = "lazydev.integrations.blink",
 				fallbacks = { "lsp" },
 			},
+			go_walrus = {
+				name = "Walrus",
+				module = "lsp.sources.go_walrus",
+				score_offset = 100,
+			},
 		},
 	},
 
@@ -39,7 +44,23 @@ blink.setup({
 				vim.cmd("stopinsert")
 			end,
 		},
-		["<CR>"] = { "accept", "fallback" },
+		["<CR>"] = {
+			"accept",
+			function()
+				local col = vim.fn.col(".")
+				local line = vim.api.nvim_get_current_line()
+				local prev_char = line:sub(col - 1, col - 1)
+				local next_char = line:sub(col, col)
+				local pair_of = { ["{"] = "}", ["["] = "]", ["("] = ")" }
+				if pair_of[prev_char] == next_char then
+					local keys = vim.api.nvim_replace_termcodes("<CR><Esc>O", true, false, true)
+					vim.api.nvim_feedkeys(keys, "n", false)
+					return true
+				end
+				return false
+			end,
+			"fallback",
+		},
 		["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
 		["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
 		["<Up>"] = { "select_prev", "fallback" },

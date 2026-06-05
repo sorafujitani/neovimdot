@@ -47,15 +47,55 @@ tasks:
         -v "$HOME/.ssh":/root/.ssh:ro
         {{.IMAGE_NAME}}:{{.TAG}}
 
+  test:setup:
+    desc: テスト依存をインストール (初回のみ)
+    cmds:
+      - |
+        # mise: 非対話シェルでは shims が PATH に無いので mise exec で同じ Lua に luarocks を当てる
+        if command -v mise >/dev/null 2>&1 && mise exec -- lua -v 2>/dev/null | grep -q 'Lua 5.1'; then
+          mise exec -- sh -c 'luarocks --local --lua-version 5.1 install busted && luarocks --local --lua-version 5.1 install nlua'
+        elif command -v lua5.1 >/dev/null 2>&1 || { command -v lua >/dev/null 2>&1 && lua -v 2>&1 | grep -q 'Lua 5.1'; }; then
+          luarocks --local --lua-version 5.1 install busted
+          luarocks --local --lua-version 5.1 install nlua
+        elif command -v nix-shell >/dev/null 2>&1; then
+          nix-shell -p lua51Packages.lua lua51Packages.luarocks --run \
+            'luarocks --local --lua-version 5.1 install busted && luarocks --local --lua-version 5.1 install nlua'
+        else
+          echo "Lua 5.1 が見つかりません。~/.config/mise/config.toml に lua を追加して mise install、または nix-shell。"
+          exit 1
+        fi
+
   test:
     desc: 全テスト実行
     cmds:
-      - eval $(luarocks --lua-version 5.1 path) && busted --lua nlua --helper tests/minimal_init.lua tests/
+      - |
+        if command -v mise >/dev/null 2>&1 && mise exec -- lua -v 2>/dev/null | grep -q 'Lua 5.1'; then
+          mise exec -- sh -c 'eval $(luarocks --lua-version 5.1 path) && busted --lua nlua --helper tests/minimal_init.lua tests/'
+        elif command -v lua5.1 >/dev/null 2>&1 || { command -v lua >/dev/null 2>&1 && lua -v 2>&1 | grep -q 'Lua 5.1'; }; then
+          eval $(luarocks --lua-version 5.1 path) && busted --lua nlua --helper tests/minimal_init.lua tests/
+        elif command -v nix-shell >/dev/null 2>&1; then
+          nix-shell -p lua51Packages.lua lua51Packages.luarocks --run \
+            'eval $(luarocks --lua-version 5.1 path) && busted --lua nlua --helper tests/minimal_init.lua tests/'
+        else
+          echo "Lua 5.1 / luarocks / busted が見つかりません (mise: config.toml に lua を追加し test:setup を実行)"
+          exit 1
+        fi
 
   test:static:
     desc: 静的テストのみ (パーサー不要)
     cmds:
-      - eval $(luarocks --lua-version 5.1 path) && busted --lua nlua tests/lsp_config_spec.lua tests/consistency_spec.lua
+      - |
+        if command -v mise >/dev/null 2>&1 && mise exec -- lua -v 2>/dev/null | grep -q 'Lua 5.1'; then
+          mise exec -- sh -c 'eval $(luarocks --lua-version 5.1 path) && busted --lua nlua tests/lsp_config_spec.lua tests/consistency_spec.lua'
+        elif command -v lua5.1 >/dev/null 2>&1 || { command -v lua >/dev/null 2>&1 && lua -v 2>&1 | grep -q 'Lua 5.1'; }; then
+          eval $(luarocks --lua-version 5.1 path) && busted --lua nlua tests/lsp_config_spec.lua tests/consistency_spec.lua
+        elif command -v nix-shell >/dev/null 2>&1; then
+          nix-shell -p lua51Packages.lua lua51Packages.luarocks --run \
+            'eval $(luarocks --lua-version 5.1 path) && busted --lua nlua tests/lsp_config_spec.lua tests/consistency_spec.lua'
+        else
+          echo "Lua 5.1 / luarocks / busted が見つかりません (mise: config.toml に lua を追加し test:setup を実行)"
+          exit 1
+        fi
 
   test:docker:
     deps: [build]

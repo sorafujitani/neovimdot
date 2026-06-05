@@ -1,0 +1,181 @@
+{
+  "if err != nil { return err }": {
+    "prefix": "iferr",
+    "body": [
+      "if err != nil {",
+      "\treturn err",
+      "}",
+      "$0"
+    ],
+    "description": "if err != nil { return err }"
+  },
+  "if err != nil { return fmt.Errorf }": {
+    "prefix": "iferrf",
+    "body": [
+      "if err != nil {",
+      "\treturn fmt.Errorf(\"${1:msg}: %w\", err)",
+      "}",
+      "$0"
+    ],
+    "description": "if err != nil with wrapped error"
+  },
+  "if err != nil { log.Fatal }": {
+    "prefix": "iferrl",
+    "body": [
+      "if err != nil {",
+      "\tlog.Fatal(err)",
+      "}",
+      "$0"
+    ],
+    "description": "if err != nil { log.Fatal }"
+  },
+  "for range": {
+    "prefix": "forr",
+    "body": [
+      "for ${1:i}, ${2:v} := range ${3:items} {",
+      "\t$0",
+      "}"
+    ],
+    "description": "for i, v := range x"
+  },
+  "for index": {
+    "prefix": "fori",
+    "body": [
+      "for ${1:i} := 0; ${1:i} < ${2:n}; ${1:i}++ {",
+      "\t$0",
+      "}"
+    ],
+    "description": "for i := 0; i < n; i++"
+  },
+  "function": {
+    "prefix": "fn",
+    "body": [
+      "func ${1:name}(${2:args}) ${3:returnType} {",
+      "\t$0",
+      "}"
+    ],
+    "description": "func declaration"
+  },
+  "method": {
+    "prefix": "meth",
+    "body": [
+      "func (${1:r} ${2:Receiver}) ${3:Name}(${4:args}) ${5:returnType} {",
+      "\t$0",
+      "}"
+    ],
+    "description": "method declaration"
+  },
+  "main package": {
+    "prefix": "main",
+    "body": [
+      "package main",
+      "",
+      "import \"fmt\"",
+      "",
+      "func main() {",
+      "\tfmt.Println(\"$1\")",
+      "\t$0",
+      "}"
+    ],
+    "description": "package main boilerplate"
+  },
+  "package": {
+    "prefix": "pkg",
+    "body": [
+      "package ${1:${TM_DIRECTORY/^.+\\/(.*)$/$1/}}",
+      "",
+      "$0"
+    ],
+    "description": "package declaration"
+  },
+  "test function": {
+    "prefix": "test",
+    "body": [
+      "func Test${1:Name}(t *testing.T) {",
+      "\tt.Helper()",
+      "\t$0",
+      "}"
+    ],
+    "description": "test function"
+  },
+  "table-driven test": {
+    "prefix": "tdt",
+    "body": [
+      "func Test${1:Name}(t *testing.T) {",
+      "\ttests := []struct {",
+      "\t\tname    string",
+      "\t\t${2:input}   ${3:string}",
+      "\t\twant    ${4:string}",
+      "\t\twantErr bool",
+      "\t}{",
+      "\t\t{name: \"${5:case}\", ${2:input}: $6, want: $7, wantErr: false},",
+      "\t}",
+      "\tfor _, tt := range tests {",
+      "\t\tt.Run(tt.name, func(t *testing.T) {",
+      "\t\t\t$0",
+      "\t\t})",
+      "\t}",
+      "}"
+    ],
+    "description": "table-driven test"
+  },
+  "fmt.Errorf wrap": {
+    "prefix": "errf",
+    "body": [
+      "fmt.Errorf(\"${1:msg}: %w\", ${2:err})$0"
+    ],
+    "description": "fmt.Errorf with %w"
+  },
+  "errors.New": {
+    "prefix": "errn",
+    "body": [
+      "errors.New(\"${1:msg}\")$0"
+    ],
+    "description": "errors.New"
+  },
+  "context.Background": {
+    "prefix": "ctxbg",
+    "body": [
+      "ctx := context.Background()$0"
+    ],
+    "description": "context.Background()"
+  },
+  "context.WithCancel": {
+    "prefix": "ctxc",
+    "body": [
+      "ctx, cancel := context.WithCancel(${1:ctx})",
+      "defer cancel()",
+      "$0"
+    ],
+    "description": "context.WithCancel + defer cancel"
+  },
+  "context.WithTimeout": {
+    "prefix": "ctxt",
+    "body": [
+      "ctx, cancel := context.WithTimeout(${1:ctx}, ${2:5*time.Second})",
+      "defer cancel()",
+      "$0"
+    ],
+    "description": "context.WithTimeout + defer cancel"
+  },
+  "go func": {
+    "prefix": "gof",
+    "body": [
+      "go func() {",
+      "\t$0",
+      "}()"
+    ],
+    "description": "go func() {}()"
+  },
+  "defer recover": {
+    "prefix": "defrec",
+    "body": [
+      "defer func() {",
+      "\tif r := recover(); r != nil {",
+      "\t\t$0",
+      "\t}",
+      "}()"
+    ],
+    "description": "defer recover()"
+  }
+}
